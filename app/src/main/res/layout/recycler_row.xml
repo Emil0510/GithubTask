@@ -11,11 +11,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:text="Username:"
         app:layout_constraintBottom_toTopOf="@+id/starCountText"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/favoriteButton"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/userAvatarIV"
         app:layout_constraintTop_toTopOf="parent" />
@@ -58,4 +58,24 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/seeAllButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="See all"
+        android:textColor="#2196F3"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="@+id/DescriptionText"
+        app:layout_constraintTop_toBottomOf="@+id/DescriptionText" />
+
+    <ImageView
+        android:id="@+id/favoriteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/baseline_favorite_border_24" />
 </androidx.constraintlayout.widget.ConstraintLayout>
