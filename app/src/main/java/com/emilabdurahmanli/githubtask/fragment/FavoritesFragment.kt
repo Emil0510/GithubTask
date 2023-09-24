@@ -1,28 +1,31 @@
 package com.emilabdurahmanli.githubtask.fragment
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.emilabdurahmanli.githubtask.R
-import com.emilabdurahmanli.githubtask.databinding.FragmentDetailsBinding
+import com.emilabdurahmanli.githubtask.adapter.OnFavoriteButtonClickListener
+import com.emilabdurahmanli.githubtask.adapter.OnItemClickListener
+import com.emilabdurahmanli.githubtask.adapter.RecyclerAdapter
+import com.emilabdurahmanli.githubtask.databinding.FragmentFavoritesBinding
 import com.emilabdurahmanli.githubtask.network.model.Item
 import com.emilabdurahmanli.githubtask.network.model.ItemRoom
 import com.emilabdurahmanli.githubtask.network.model.Owner
 import com.emilabdurahmanli.githubtask.room.AppDatabase
-import com.squareup.picasso.Picasso
 
 
-class DetailsFragment : Fragment() {
+class FavoritesFragment : Fragment(), OnItemClickListener, OnFavoriteButtonClickListener {
 
 
-    private lateinit var binding : FragmentDetailsBinding
-    private lateinit var item : Item
     private lateinit var viewModel: ItemsFragmentViewModel
+    private lateinit var binding: FragmentFavoritesBinding
     private lateinit var db: AppDatabase
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,31 +35,27 @@ class DetailsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        binding = FragmentDetailsBinding.inflate(layoutInflater)
+        binding = FragmentFavoritesBinding.inflate(layoutInflater)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[ItemsFragmentViewModel::class.java]
-        item = arguments?.getSerializable("Item") as Item
-        val fromFavorite = arguments?.getBoolean("fromFavorite")
-        binding.backButton.setOnClickListener {
-            if(fromFavorite == true){
-                loadFragment(FavoritesFragment())
-            }else{
-                loadFragment(ItemsFragment())
-            }
-        }
         db = Room.databaseBuilder(
             requireContext(),
             AppDatabase::class.java, "FavoriteItems"
         ).build()
+        viewModel.getFavoriteList(db.itemDao())
+        binding.backBtnFavorites.setOnClickListener {
+            loadFragment(ItemsFragment())
+        }
 
-        viewModel.getFavoriteList( db.itemDao())
+        binding.favoritesRV.adapter = RecyclerAdapter(listOf(), listOf(),this, this)
 
+        binding.favoritesRV.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         viewModel.observeFavoriteList().observe(viewLifecycleOwner, Observer {
             val itemList = mutableListOf<Item>()
             for (i in it.indices) {
@@ -75,47 +74,47 @@ class DetailsFragment : Fragment() {
                 )
                 itemList.add(item)
             }
-            binding.favoriteBtn.isSelected = itemList.contains(item)
+            Log.d("Emilll", "Posted data")
+            Log.d("Emilll", "data: ${itemList.toString()}")
+
+
+            (binding.favoritesRV.adapter as RecyclerAdapter).updateData(itemList, it)
         })
 
-        Picasso.get().load(item.owner.avatar_url).into(binding.userAvatarImage)
-        binding.usernameLoginTV.setText("Username: ${item.name?.trim()}\nLogin: ${item.owner.login?.trim()}")
-        binding.descriptionTV.setText("Description: ${item.description?.trim()}")
-        binding.starsCountTV.setText("Stars: ${item.stargazers_count}")
-        binding.forksCount.setText("Forks: ${item.forks}")
-        binding.languageText.setText("Language: ${item.language}")
-        binding.createdDateText.setText("Created date: ${item.created_at}")
-
-
-        binding.favoriteBtn.setOnClickListener {
-            val itemRoom = ItemRoom(
-                item.id,
-                item.name,
-                item.full_name,
-                item.private,
-                item.owner.login,
-                item.owner.avatar_url,
-                item.description,
-                item.stargazers_count,
-                item.language,
-                item.forks,
-                item.created_at,
-                item.html_url
-            )
-            if(binding.favoriteBtn.isSelected){
-                viewModel.deleteFromFavorites(db.itemDao(), itemRoom)
-            }else{
-                viewModel.addToFavorites(db.itemDao(), itemRoom)
-            }
-            binding.favoriteBtn.isSelected = !(binding.favoriteBtn.isSelected)
-        }
 
     }
 
-    private  fun loadFragment(fragment: Fragment){
+
+
+    override fun onCLick(item: ItemRoom, isAddFavorite: Boolean) {
+        if(isAddFavorite){
+            Log.d("Emilll", "Add")
+            viewModel.addToFavorites(db.itemDao(), item)
+        }else{
+            Log.d("Emilll", "Delete")
+            viewModel.deleteFromFavorites(db.itemDao(), item)
+        }
+    }
+
+    override fun onCLick(item: Item) {
+        loadFragmentWithBundle(DetailsFragment(),item )
+    }
+
+    private fun loadFragment(fragment: Fragment) {
         val transaction = parentFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragmentContainer, fragment)
+        transaction.commit()
+    }
+
+    private  fun loadFragmentWithBundle(fragment: Fragment, item : Item){
+        val transaction = parentFragmentManager.beginTransaction()
+        val bundle = Bundle()
+        bundle.putSerializable("Item",item)
+        bundle.putBoolean("fromFavorite", true)
+        fragment.arguments = bundle
         transaction.replace(R.id.fragmentContainer,fragment)
         transaction.commit()
     }
+
 
 }
