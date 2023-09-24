@@ -1,10 +1,12 @@
 package com.emilabdurahmanli.githubtask.fragment
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
@@ -85,6 +87,13 @@ class DetailsFragment : Fragment() {
         binding.forksCount.setText("Forks: ${item.forks}")
         binding.languageText.setText("Language: ${item.language}")
         binding.createdDateText.setText("Created date: ${item.created_at}")
+        binding.urlText.setText(item.html_url)
+
+        binding.urlText.setOnClickListener {
+            val i = Intent(Intent.ACTION_VIEW)
+            i.data = Uri.parse(item.html_url)
+            startActivity(i)
+        }
 
 
         binding.favoriteBtn.setOnClickListener {
