@@ -74,9 +74,6 @@ class FavoritesFragment : Fragment(), OnItemClickListener, OnFavoriteButtonClick
                 )
                 itemList.add(item)
             }
-            Log.d("Emilll", "Posted data")
-            Log.d("Emilll", "data: ${itemList.toString()}")
-
 
             (binding.favoritesRV.adapter as RecyclerAdapter).updateData(itemList, it)
         })
@@ -88,10 +85,8 @@ class FavoritesFragment : Fragment(), OnItemClickListener, OnFavoriteButtonClick
 
     override fun onCLick(item: ItemRoom, isAddFavorite: Boolean) {
         if(isAddFavorite){
-            Log.d("Emilll", "Add")
             viewModel.addToFavorites(db.itemDao(), item)
         }else{
-            Log.d("Emilll", "Delete")
             viewModel.deleteFromFavorites(db.itemDao(), item)
         }
     }

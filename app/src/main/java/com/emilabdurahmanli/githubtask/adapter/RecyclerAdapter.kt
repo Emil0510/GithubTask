@@ -1,6 +1,7 @@
 package com.emilabdurahmanli.githubtask.adapter
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +44,10 @@ class RecyclerAdapter(
             holder.binding.DescriptionText.setText("Description: ${"Default text of this task"}")
         } else {
             holder.binding.DescriptionText.setText("Description: ${list[position].description?.trim()}")
-            if (holder.binding.DescriptionText.lineCount > 3 && !list[position].isSeen) {
+
+            if (holder.binding.DescriptionText.textSize > 30 && !list[position].isSeen) {
+                Log.d("Line Count", holder.binding.DescriptionText.lineCount.toString())
+                holder.binding.DescriptionText.maxLines = 3
                 holder.binding.seeAllButton.visibility = View.VISIBLE
             }
         }
